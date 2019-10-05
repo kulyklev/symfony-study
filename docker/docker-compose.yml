@@ -1,0 +1,44 @@
+version: '3.7'
+
+services:
+  php:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    image: books-parsers-php
+    environment:
+      - PHP_IDE_CONFIG=serverName=test
+    depends_on:
+      - mysql
+    volumes:
+      - ./../src:/var/www/html
+      - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: books-parsers-nginx
+    depends_on:
+      - php
+    ports:
+      - 80:80
+    volumes:
+      - ./../src:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+  mysql:
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    image: books-parsers-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql/volumes:/var/lib/mysql
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--default-authentication-plugin=mysql_native_password']
