@@ -35,15 +35,19 @@ class BlogController extends AbstractController
      */
     public function index()
     {
-        return new JsonResponse(self::POSTS);
+        return $this->json([
+            'data' => array_map(function ($item) {
+                return $this->generateUrl('blog_by_id', ['id' => $item['id']]);
+            }, self::POSTS),
+        ]);
     }
 
     /**
-     * @Route("/{id}", name="blog_by_id")
+     * @Route("/{id}", name="blog_by_id", requirements={"id"="\d+"})
      */
     public function post($id)
     {
-        return new JsonResponse(
+        return $this->json(
             self::POSTS[array_search($id, array_column(self::POSTS, 'id'))]
         );
     }
@@ -53,7 +57,7 @@ class BlogController extends AbstractController
      */
     public function postBySlug($slug)
     {
-        return new JsonResponse(
+        return $this->json(
             self::POSTS[array_search($slug, array_column(self::POSTS, 'slug'))]
         );
     }
