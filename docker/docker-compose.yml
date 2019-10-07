@@ -11,7 +11,7 @@ services:
     depends_on:
       - mysql
     volumes:
-      - ./../src:/var/www/html
+      - ./../project_src:/var/www/html
       - ./php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
 
   nginx:
@@ -24,7 +24,7 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./../src:/var/www/html
+      - ./../project_src:/var/www/html
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
 
   mysql:

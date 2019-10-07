@@ -7,4 +7,4 @@ RUN apt-get update && apt-get install -y wget git unzip \
     && pecl install xdebug \
     && docker-php-ext-enable xdebug
 
-WORKDIR /var/www/html/
+WORKDIR /var/www/html
