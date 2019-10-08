@@ -4,9 +4,11 @@
 namespace App\Controller;
 
 use App\Entity\BlogPost;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Serializer;
 
@@ -15,55 +17,37 @@ use Symfony\Component\Serializer\Serializer;
  */
 class BlogController extends AbstractController
 {
-    private const POSTS = [
-        [
-            'id' => 1,
-            'slug' => 'first-post',
-            'title' => 'First post'
-        ],
-        [
-            'id' => 1,
-            'slug' => 'second-post',
-            'title' => 'Second post'
-        ],
-        [
-            'id' => 3,
-            'slug' => 'third-post',
-            'title' => 'Third post'
-        ],
-    ];
-
     /**
      * @Route("/{page}", name="blog_list", defaults={"page": 5}, requirements={"page": "\d+"})
      */
     public function index($page = 1)
     {
+        $repository = $this->getDoctrine()->getRepository(BlogPost::class);
+        $items = $repository->findAll();
+
         return $this->json([
             'page' => $page,
-            'data' => array_map(function ($item) {
-                return $this->generateUrl('blog_by_id', ['id' => $item['id']]);
-            }, self::POSTS),
+            'data' => array_map(function (BlogPost $item) {
+                return $this->generateUrl('blog_by_id', ['id' => $item->getId()]);
+            }, $items),
         ]);
     }
 
     /**
-     * @Route("/{id}", name="blog_by_id", requirements={"id"="\d+"})
+     * @Route("/post/{id}", name="blog_by_id", requirements={"id"="\d+"}, methods={"GET"})
+     * @ParamConverter("post", class="App\Entity\BlogPost")
      */
-    public function post($id)
+    public function post($post)
     {
-        return $this->json(
-            self::POSTS[array_search($id, array_column(self::POSTS, 'id'))]
-        );
+        return $this->json($post);
     }
 
     /**
-     * @Route("/{slug}", name="blog_by_slug", methods={"GET"})
+     * @Route("/post/{slug}", name="blog_by_slug", methods={"GET"})
      */
-    public function postBySlug($slug)
+    public function postBySlug(BlogPost $post)
     {
-        return $this->json(
-            self::POSTS[array_search($slug, array_column(self::POSTS, 'slug'))]
-        );
+        return $this->json($post);
     }
 
     /**
@@ -81,5 +65,17 @@ class BlogController extends AbstractController
         $em->flush();
 
         return $this->json($blogPost);
+    }
+
+    /**
+     * @Route("/post/{id}", name="blog_delete", methods={"DELETE"})
+     * */
+    public function delete(BlogPost $post)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $em->remove($post);
+        $em->flush();
+
+        return $this->json(null, Response::HTTP_NO_CONTENT);
     }
 }
