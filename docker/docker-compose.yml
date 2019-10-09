@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     image: books-parsers-php
     environment:
-      - PHP_IDE_CONFIG=serverName=test
+      - PHP_IDE_CONFIG=serverName=symfony-study
     depends_on:
       - mysql
     volumes:

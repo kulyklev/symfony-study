@@ -13,13 +13,33 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
- *     itemOperations={"get"},
+ *     itemOperations={
+ *          "get"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
+ *              "normalization_context"={
+ *                  "groups"={"get"}
+ *              }
+ *          },
+ *          "put"={
+ *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *              "denormalization_context"={
+ *                  "groups"={"put"}
+ *              },
+ *              "normalization_context"={
+ *                "groups"={"get"}
+ *              }
+ *          },
+ *      },
  *     collectionOperations={
- *          "post"
+ *          "post"={
+ *              "denormalization_context"={
+ *                  "groups"={"post"}
+ *              },
+ *              "normalization_context"={
+ *                  "groups"={"get"}
+ *              }
+ *          }
  *     },
- *     normalizationContext={
- *          "groups"={"read"}
- *     }
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @UniqueEntity("username")
@@ -31,13 +51,13 @@ class User implements UserInterface
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"read"})
+     * @Groups({"get"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read"})
+     * @Groups({"get", "post"})
      * @Assert\NotBlank()
      * @Assert\Length(min="6", max="255")
      */
@@ -45,6 +65,7 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"put", "post"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
@@ -55,6 +76,7 @@ class User implements UserInterface
 
     /**
      * @Assert\NotBlank()
+     * @Groups({"put", "post"})
      * @Assert\Expression(
      *     "this.getPassword() === this.getPasswordConfirmation()",
      *     message="Passwords does not match"
@@ -64,13 +86,14 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"read"})
+     * @Groups({"get", "put", "post"}))
      * @Assert\NotBlank()
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"post", "put"})
      * @Assert\NotBlank()
      * @Assert\Email()
      */
@@ -78,13 +101,13 @@ class User implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\BlogPost", mappedBy="author")
-     * @Groups({"read"})
+     * @Groups({"get"})
      * */
     private $posts;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
-     * @Groups({"read"})
+     * @Groups({"get"})
      * */
     private $comments;
 
