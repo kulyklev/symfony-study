@@ -14,31 +14,31 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     itemOperations={
- *          "get"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
- *          },
- *          "put"={
- *              "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
- *              "denormalization_context"={
- *                  "groups"={"put"}
- *              },
- *              "normalization_context"={
- *                "groups"={"get"}
- *              }
- *          },
- *      },
+ *         "get"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')",
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         },
+ *         "put"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *             "denormalization_context"={
+ *                 "groups"={"put"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         }
+ *     },
  *     collectionOperations={
- *          "post"={
- *              "denormalization_context"={
- *                  "groups"={"post"}
- *              },
- *              "normalization_context"={
- *                  "groups"={"get"}
- *              }
- *          }
+ *         "post"={
+ *             "denormalization_context"={
+ *                 "groups"={"post"}
+ *             },
+ *             "normalization_context"={
+ *                 "groups"={"get"}
+ *             }
+ *         }
  *     },
  * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -57,9 +57,9 @@ class User implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "post"})
+     * @Groups({"get", "post", "get-comment-with-author"})
      * @Assert\NotBlank()
-     * @Assert\Length(min="6", max="255")
+     * @Assert\Length(min=6, max=255)
      */
     private $username;
 
@@ -75,19 +75,20 @@ class User implements UserInterface
     private $password;
 
     /**
-     * @Assert\NotBlank()
      * @Groups({"put", "post"})
+     * @Assert\NotBlank()
      * @Assert\Expression(
-     *     "this.getPassword() === this.getPasswordConfirmation()",
+     *     "this.getPassword() === this.getRetypedPassword()",
      *     message="Passwords does not match"
      * )
-     * */
+     */
     private $passwordConfirmation;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"get", "put", "post"}))
+     * @Groups({"get", "post", "put", "get-comment-with-author"})
      * @Assert\NotBlank()
+     * @Assert\Length(min=5, max=255)
      */
     private $name;
 
@@ -96,6 +97,7 @@ class User implements UserInterface
      * @Groups({"post", "put"})
      * @Assert\NotBlank()
      * @Assert\Email()
+     * @Assert\Length(min=6, max=255)
      */
     private $email;
 
@@ -108,7 +110,7 @@ class User implements UserInterface
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Comment", mappedBy="author")
      * @Groups({"get"})
-     * */
+     */
     private $comments;
 
     public function __construct()

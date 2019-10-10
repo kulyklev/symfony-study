@@ -5,23 +5,14 @@ namespace App\EventSubscriber;
 
 
 use ApiPlatform\Core\EventListener\EventPriorities;
-use App\Entity\AuthoredEntityInterface;
+use App\Entity\PublishedDateEntityInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
-class AuthoredEntitySubscriber implements EventSubscriberInterface
+class PublishedDateEntitySubscriber implements EventSubscriberInterface
 {
-
-    private $tokenStorage;
-
-    public function __construct(TokenStorageInterface $tokenStorage)
-    {
-        $this->tokenStorage = $tokenStorage;
-    }
-
     /**
      * Returns an array of event names this subscriber wants to listen to.
      *
@@ -43,24 +34,21 @@ class AuthoredEntitySubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         return [
-            KernelEvents::VIEW => ['getAuthenticatedUser', EventPriorities::PRE_WRITE]
+            KernelEvents::VIEW => ['setDatePublished', EventPriorities::PRE_WRITE]
         ];
     }
 
-    public function getAuthenticatedUser(ViewEvent $event)
+    public function setDatePublished(ViewEvent $event)
     {
         $entity = $event->getControllerResult();
         $method = $event->getRequest()->getMethod();
 
-        $author = $this->tokenStorage->getToken()->getUser();
-
-        $isAuthoredEntity = !$entity instanceof AuthoredEntityInterface;
         $isPostMethod = Request::METHOD_POST !== $method;
 
-        if ($isAuthoredEntity || $isPostMethod) {
+        if (!$entity instanceof PublishedDateEntityInterface || $isPostMethod) {
             return;
         }
 
-        $entity->setAuthor($author);
+        $entity->setPublished(new \DateTime());
     }
 }
