@@ -10,6 +10,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
+ *     subresourceOperations={
+ *          "api_blog_posts_comments_get_subresource"={
+ *              "method"="GET",
+ *              "normalization_context"={"groups"={"get-comment-with-author"}}
+ *           }
+ *      },
  *     itemOperations={
  *         "get",
  *         "put"={
@@ -21,11 +27,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  *         "post"={
  *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY')"
  *         },
- *         "api_blog_posts_comments_get_subresource"={
- *             "normalization_context"={
- *                 "groups"={"get-comment-with-author"}
- *             }
- *         }
  *     },
  *     denormalizationContext={
  *         "groups"={"post"}
