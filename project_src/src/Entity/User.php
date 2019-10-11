@@ -8,8 +8,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use App\Controller\ResetPasswordAction;
 
 /**
  * @ApiResource(
@@ -28,7 +30,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  *             "normalization_context"={
  *                 "groups"={"get"}
  *             }
- *         }
+ *          },
+ *          "put-reset-password"={
+ *             "access_control"="is_granted('IS_AUTHENTICATED_FULLY') and object == user",
+ *             "method"="PUT",
+ *             "path"="/users/{id}/reset-password",
+ *             "controller"=ResetPasswordAction::class,
+ *             "denormalization_context"={
+ *                 "groups"={"put-reset-password"}
+ *             }
+ *          },
  *     },
  *     collectionOperations={
  *         "post"={
@@ -66,46 +77,75 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get", "post", "get-comment-with-author", "get-blog-post-with-author"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min=6, max=255)
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Length(min=6, max=255, groups={"post"})
      */
     private $username;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"put", "post"})
+     * @Groups({"post"})
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Regex(
+     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *     message="Password must be 7 characters long, Aa-Zz and 0-9",
+     *     groups={"post"}
+     * )
+     */
+    private $password;
+
+    /**
+     * @Groups({"post"})
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Expression(
+     *     "this.getPassword() === this.getPasswordConfirmation()",
+     *     message="Passwords does not match",
+     *     groups={"post"}
+     * )
+     */
+    private $passwordConfirmation;
+
+    /**
+     * @Groups({"put-reset-password"})
      * @Assert\NotBlank()
      * @Assert\Regex(
      *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
      *     message="Password must be 7 characters long, Aa-Zz and 0-9"
      * )
      */
-    private $password;
+    private $newPassword;
 
     /**
-     * @Groups({"put", "post"})
+     * @Groups({"put-reset-password"})
      * @Assert\NotBlank()
      * @Assert\Expression(
-     *     "this.getPassword() === this.getRetypedPassword()",
+     *     "this.getNewPassword() === this.getNewPasswordConfirmation()",
      *     message="Passwords does not match"
      * )
      */
-    private $passwordConfirmation;
+    private $newPasswordConfirmation;
+
+    /**
+     * @Groups({"put-reset-password"})
+     * @Assert\NotBlank()
+     * @UserPassword()
+     */
+    private $oldPassword;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"get", "post", "put", "get-comment-with-author", "get-blog-post-with-author"})
-     * @Assert\NotBlank()
-     * @Assert\Length(min=5, max=255)
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Length(min=5, max=255, groups={"post", "put"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @Groups({"post", "put", "get-admin", "get-owner"})
-     * @Assert\NotBlank()
-     * @Assert\Email()
-     * @Assert\Length(min=6, max=255)
+     * @Assert\NotBlank(groups={"post"})
+     * @Assert\Email(groups={"post", "put"})
+     * @Assert\Length(min=6, max=255, groups={"post", "put"})
      */
     private $email;
 
@@ -256,4 +296,39 @@ class User implements UserInterface
     {
         return $this->passwordConfirmation;
     }
+
+    public function getNewPassword(): ?string
+    {
+        return $this->newPassword;
+    }
+
+    public function setNewPassword($newPassword): self
+    {
+        $this->newPassword = $newPassword;
+        return $this;
+    }
+
+    public function getNewPasswordConfirmation(): ?string
+    {
+        return $this->newPasswordConfirmation;
+    }
+
+    public function setNewPasswordConfirmation($newPasswordConfirmation): self
+    {
+        $this->newPasswordConfirmation = $newPasswordConfirmation;
+        return $this;
+    }
+
+    public function getOldPassword(): ?string
+    {
+        return $this->oldPassword;
+    }
+
+    public function setOldPassword($oldPassword): self
+    {
+        $this->oldPassword = $oldPassword;
+        return $this;
+    }
+
+
 }
