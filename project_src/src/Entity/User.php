@@ -47,6 +47,14 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface
 {
+    const ROLE_COMMENTATOR = "ROLE_COMMENTATOR";
+    const ROLE_WRITER = "ROLE_WRITER";
+    const ROLE_EDITOR = "ROLE_EDITOR";
+    const ROLE_ADMIN = "ROLE_ADMIN";
+    const ROLE_SUPERADMIN = "ROLE_SUPERADMIN";
+
+    const DEFAULT_ROLES = [self::ROLE_COMMENTATOR];
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -113,10 +121,16 @@ class User implements UserInterface
      */
     private $comments;
 
+    /**
+     * @ORM\Column(type="simple_array", length=200)
+     */
+    private $roles;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->comments = new ArrayCollection();
+        $this->roles = self::DEFAULT_ROLES;
     }
 
     public function getId(): ?int
@@ -196,9 +210,15 @@ class User implements UserInterface
      *
      * @return (Role|string)[] The user roles
      */
-    public function getRoles()
+    public function getRoles(): array
     {
-        return ['ROLE_USER'];
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+        return $this;
     }
 
     /**
