@@ -65,7 +65,7 @@ class UserConfirmationSubscriber implements EventSubscriberInterface
         $confirmationToken = $event->getControllerResult();
 
         /** @var User $user */
-        $user = $this->userRepository->findBy(['confirmationToken' => $confirmationToken->confirmationToken]);
+        $user = $this->userRepository->findOneBy(['confirmationToken' => $confirmationToken->confirmationToken]);
 
         if (!$user) {
             throw new NotFoundHttpException();
