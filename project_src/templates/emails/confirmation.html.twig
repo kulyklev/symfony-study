@@ -1,0 +1,7 @@
+<h3>
+    Hello, {{ user.getName() }}! Confirm your email.
+</h3>
+
+<p>
+    Press <a href="{{ url('default_confirm_token', {'token': user.getConfirmationToken()}) }}">this</a> to confirm your email
+</p>
