@@ -19,7 +19,7 @@ use App\Controller\UploadImageAction;
  *              "method"="POST",
  *              "path"="/images",
  *              "controller"=UploadImageAction::class,
- *              "defaults"={"_api_recieve"=false}
+ *              "defaults"={"_api_receive"=false}
  *          }
  *     }
  * )
@@ -34,7 +34,7 @@ class Image
     private $id;
 
     /**
-     * @Vich\UploadableField(mapping="iamges", fileNameProperty="url")
+     * @Vich\UploadableField(mapping="images", fileNameProperty="url")
      */
     private $file;
 
@@ -61,7 +61,7 @@ class Image
 
     public function getUrl(): string
     {
-        return $this->url;
+        return '/images/' . $this->url;
     }
 
     public function setUrl($url): self
