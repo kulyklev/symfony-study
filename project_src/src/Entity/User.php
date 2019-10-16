@@ -371,7 +371,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getPasswordChangeDate(): int
+    public function getPasswordChangeDate(): ?int
     {
         return $this->passwordChangeDate;
     }
