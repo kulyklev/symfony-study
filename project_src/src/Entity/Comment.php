@@ -10,6 +10,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
+ *     attributes={
+ *          "order"={"published": "DESC"}
+ *     },
  *     subresourceOperations={
  *          "api_blog_posts_comments_get_subresource"={
  *              "method"="GET",
