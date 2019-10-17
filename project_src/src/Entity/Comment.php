@@ -77,6 +77,11 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
      */
     private $blogPost;
 
+    public function __toString(): string
+    {
+        return substr($this->content, 0, '20') . '...';
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -106,7 +111,7 @@ class Comment implements AuthoredEntityInterface, PublishedDateEntityInterface
         return $this;
     }
 
-    public function getAuthor(): User
+    public function getAuthor(): ?User
     {
         return $this->author;
     }

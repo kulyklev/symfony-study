@@ -195,6 +195,11 @@ class User implements UserInterface
         $this->confirmationToken = null;
     }
 
+    public function __toString(): string
+    {
+        return $this->username;
+    }
+
     public function isEnabled(): bool
     {
         return $this->enabled;
@@ -206,7 +211,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getConfirmationToken(): string
+    public function getConfirmationToken(): ?string
     {
         return $this->confirmationToken;
     }
