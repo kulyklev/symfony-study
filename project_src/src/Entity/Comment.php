@@ -11,7 +11,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * @ApiResource(
  *     attributes={
- *          "order"={"published": "DESC"}
+ *          "order"={"published": "DESC"},
+ *          "pagination_client_enabled"=true,
+ *          "pagination_client_items_per_page"=true
  *     },
  *     subresourceOperations={
  *          "api_blog_posts_comments_get_subresource"={
